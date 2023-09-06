@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
         const ethAddress = interaction.options.getString('address');
         try {
             const transactions = await getTransactionDetails(ethAddress);
-            let replyText = 'Last 10 transactions:\n';
+            let replyText = 'Last transaction:\n';
 
             transactions.forEach((tx, index) => {
                 replyText += `#${index + 1} - Date: ${tx.date}, Method: ${tx.method}, From: ${tx.from}, To: ${tx.to}, Value: ${tx.value} ETH, Txn Fee: ${tx.txnFee} ETH\n`;

@@ -5,7 +5,7 @@ const etherscanApiKey = 'KGC77JS1HI69PIUB41WPCXP2P92QCEZJR5'; // Replace with yo
 async function getTransactionDetails(ethAddress) {
     try {
         const response = await axios.get(`https://api.etherscan.io/api?module=account&action=txlist&address=${ethAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`);
-        const transactions = response.data.result.slice(0, 10); // Get last 10 transactions
+        const transactions = response.data.result.slice(0, 1); // Get last 10 transactions
 
         const transactionDetails = transactions.map(tx => {
             return {
