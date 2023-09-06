@@ -1,5 +1,8 @@
 # Etherscan-API
 Discord bot that tracks etherscan.
 
-Javascript. /checktx [eth address] to check last transaction on this address.
-Later i will add automation so it can check if there's any new transaction every 1 sec. or less, depending how API allows.
+Javascript.
+
+/checktx [Address] to check last 5 transaction. (PLEASE DON'T USE IT WITH VERY ACTIVE ADDRESS IT CRASHES THE BOT)
+/trackaddress [Address] [Channel_ID] Use Address you need to track and Discord Channel ID that you want it to post updates.
+/stoptracking [Address] Use Address that you're tracking to stop from doing it.
