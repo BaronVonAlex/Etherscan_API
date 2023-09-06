@@ -7,14 +7,6 @@ const { EmbedBuilder } = require('discord.js');
 const checkForNewTransaction = require('./commands/address_scan'); // Load Address Scan functions
 const trackingIntervals = new Map(); // Global map to store tracking intervals
 
-
-// const { handleCheckTx } = require('./commands/checktx');  // Adjust the path as needed
-// const { MessageEmbed } = require('discord.js'); // Import Embed messages
-
-// const ethAddressToWatch = '0x61C177E7f6D89f9ac7C606A31D53AE35921c0585'; // Target ETH Address
-// const channelIdToNotify = '1089211696813453404'; // Discord Channel ID
-// setInterval(() => checkForNewTransaction(client, ethAddressToWatch, channelIdToNotify), 1000) // Interval
-
 const addressMap = {};
 setInterval(() => checkForNewTransaction(client, addressMap), 1000);
 
@@ -28,7 +20,6 @@ client.once(Events.ClientReady, async c => {
         console.error('Error registering commands:', error);
     }
 });
-
 
 // This event will run whenever a user types a slash command
 client.on('interactionCreate', async interaction => {
@@ -91,7 +82,4 @@ client.on('interactionCreate', async interaction => {
 	}
 });
 
-
-
-// Log in to Discord with your client's token from .env file
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.BOT_TOKEN); // Login Discord with Token.
