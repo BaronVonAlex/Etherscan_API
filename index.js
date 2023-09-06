@@ -3,70 +3,92 @@ require('dotenv').config(); // Load environment variables from .env file
 const { Client, Events, GatewayIntentBits } = require('discord.js'); // Load environment variables from .env file
 const axios = require('axios');
 const { getTransactionDetails } = require('./commands/checktx');  // Make sure to update this path to where your checktx.js is located
-const { handleCheckTx } = require('./commands/checktx');  // Adjust the path as needed
+const { EmbedBuilder } = require('discord.js');
+const checkForNewTransaction = require('./commands/address_scan'); // Load Address Scan functions
+const trackingIntervals = new Map(); // Global map to store tracking intervals
 
 
+// const { handleCheckTx } = require('./commands/checktx');  // Adjust the path as needed
+// const { MessageEmbed } = require('discord.js'); // Import Embed messages
+
+// const ethAddressToWatch = '0x61C177E7f6D89f9ac7C606A31D53AE35921c0585'; // Target ETH Address
+// const channelIdToNotify = '1089211696813453404'; // Discord Channel ID
+// setInterval(() => checkForNewTransaction(client, ethAddressToWatch, channelIdToNotify), 1000) // Interval
+
+const addressMap = {};
+setInterval(() => checkForNewTransaction(client, addressMap), 1000);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] }); // Create a new client instance
 
 // When the client is ready, run this code (only once)
 client.once(Events.ClientReady, async c => {
-    console.log(`Ready! Logged in as ${c.user.tag}`);
-
-    const appId = '1148860480681672704'; // Replace this with your bot's Client ID
-
-    // Registering commands
     try {
-        // Registering the /checktx command
-        await axios.post(
-            `https://discord.com/api/v9/applications/${appId}/commands`,
-            {
-                name: 'checktx',
-                description: 'Check transactions for a specific Ethereum address',
-                options: [
-                    {
-                        name: 'address',
-                        type: 3,  // For STRING type
-                        description: 'The Ethereum address to check',
-                        required: true
-                    }
-                ]
-            },
-            {
-                headers: {
-                    Authorization: `Bot ${process.env.BOT_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
-        console.log('Commands registered');
+        console.log(`Ready! Logged in as ${c.user.tag}`);
     } catch (error) {
         console.error('Error registering commands:', error);
     }
 });
 
+
 // This event will run whenever a user types a slash command
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
+	if (interaction.commandName === 'trackaddress') {
+		const ethAddress = interaction.options.getString('address');
+		const channelId = interaction.options.getString('channelid');
+		
+		// Store this information
+		addressMap[ethAddress] = channelId;
+
+		const intervalId = setInterval(() => checkForNewTransaction(client, addressMap), 1000);
+        trackingIntervals.set(ethAddress, intervalId);
+		
+		await interaction.reply(`Now tracking address ${ethAddress} and will post updates in channel ${channelId}`);
+	}
+
+	if (interaction.commandName === 'stoptracking') {
+		const address = interaction.options.getString('address');
+	
+		// Remove the address from the addressMap to stop tracking
+		if (addressMap.hasOwnProperty(address)) {
+			delete addressMap[address];
+			await interaction.reply(`Stopped tracking address ${address}`);
+		} else {
+			await interaction.reply(`No tracking found for address ${address}`);
+		}
+	}
+
     if (interaction.commandName === 'checktx') {
-        const ethAddress = interaction.options.getString('address');
-        try {
-            const transactions = await getTransactionDetails(ethAddress);
-            let replyText = 'Last transaction:\n';
-
-            transactions.forEach((tx, index) => {
-                replyText += `#${index + 1} - Date: ${tx.date}, Method: ${tx.method}, From: ${tx.from}, To: ${tx.to}, Value: ${tx.value} ETH, Txn Fee: ${tx.txnFee} ETH\n`;
-            });
-
-            await interaction.reply(replyText);
-        } catch (error) {
+		const ethAddress = interaction.options.getString('address');
+		try {
+			const transactions = await getTransactionDetails(ethAddress);
+			
+			const embed = new EmbedBuilder()
+				.setColor(0x0099FF)
+				.setTitle('Last Transactions')
+				.setDescription(`Ethereum Address: ${ethAddress}`);
+			
+			const fields = transactions.map((tx, index) => {
+				return {
+					name: `Transaction #${index + 1}`,
+					value: `Date: ${tx.date}\n` +
+						   `Method: ${tx.method}\n` +
+						   `From: ${tx.from}\n` +
+						   `To: ${tx.to}\n` +
+						   `Value: ${tx.value} ETH\n` +
+						   `Txn Fee: ${tx.txnFee} ETH`
+				};
+			});
+	
+			embed.addFields(fields);
+	
+			await interaction.reply({ embeds: [embed] });
+		} catch (error) {
 			console.error("Error details:", error);
 			await interaction.reply('An error occurred while fetching transactions.');
 		}
-		
-    }
+	}
 });
 
 

@@ -1,11 +1,10 @@
 const axios = require('axios');
-
-const etherscanApiKey = 'KGC77JS1HI69PIUB41WPCXP2P92QCEZJR5'; // Replace with your Etherscan API Key
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY; // Replace with your Etherscan API Key
 
 async function getTransactionDetails(ethAddress) {
     try {
         const response = await axios.get(`https://api.etherscan.io/api?module=account&action=txlist&address=${ethAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`);
-        const transactions = response.data.result.slice(0, 1); // Get last 10 transactions
+        const transactions = response.data.result.slice(0, 5); // Get last 5 transactions
 
         const transactionDetails = transactions.map(tx => {
             return {
@@ -44,20 +43,47 @@ async function handleCheckTx(interaction) {
             const startIdx = (page - 1) * transactionsPerPage;
             const endIdx = startIdx + transactionsPerPage;
             const pageTransactions = transactions.slice(startIdx, endIdx);
-
+        
             let reply = `**Page ${page} - Last ${pageTransactions.length} transactions:**\n\n`;
-
+            let replies = [];
+        
             pageTransactions.forEach((tx, index) => {
-                reply += `**Transaction ${startIdx + index + 1}**\n`;
-                reply += `Date: ${tx.date}\n`;
-                reply += `Method: ${tx.method}\n`;
-                reply += `From: ${tx.from}\n`;
-                reply += `To: ${tx.to}\n`;
-                reply += `Value: ${tx.value} ETH\n`;
-                reply += `Transaction Fee: ${tx.txnFee} ETH\n\n`;
+                const txDetails = `**Transaction ${startIdx + index + 1}**\n` +
+                                  `Date: ${tx.date}\n` +
+                                  `Method: ${tx.method}\n` +
+                                  `From: ${tx.from}\n` +
+                                  `To: ${tx.to}\n` +
+                                  `Value: ${tx.value} ETH\n` +
+                                  `Transaction Fee: ${tx.txnFee} ETH\n\n`;
+        
+                if (reply.length + txDetails.length > 2000) {
+                    replies.push(reply);
+                    reply = '';
+                }
+                reply += txDetails;
             });
-
-            await interaction.reply(reply);
+        
+            if (reply.length > 0) {
+                replies.push(reply);
+            }
+        
+            // Check if the first reply exceeds the Discord character limit
+            if (replies[0].length > 2000) {
+                await interaction.reply("The message is too long to display. Please try fetching fewer transactions.");
+                return;
+            }
+        
+            // Send the first reply
+            await interaction.reply(replies.shift());
+        
+            // Send the remaining replies as follow-ups
+            for (const r of replies) {
+                if (r.length <= 2000) {
+                    await interaction.followUp(r);
+                } else {
+                    await interaction.followUp("The message is too long to display. Please try fetching fewer transactions.");
+                }
+            }
         };
 
         // Function to handle pagination buttons

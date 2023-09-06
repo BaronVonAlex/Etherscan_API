@@ -6,3 +6,6 @@ node_modules/
 
 # Ignore other files and folders you don't want to commit
 .DS_Store
+
+regSlashCommands.txt
+lastTransactionHash.txt

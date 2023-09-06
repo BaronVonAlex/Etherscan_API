@@ -1,6 +1,5 @@
 const axios = require('axios');
-
-const etherscanApiKey = 'KGC77JS1HI69PIUB41WPCXP2P92QCEZJR5'; // Replace with your Etherscan API Key
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY;; // Replace with your Etherscan API Key
 
 async function getTransactionCount(ethAddress) {
     try {
