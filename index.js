@@ -1,15 +1,13 @@
-// Load environment variables from .env file
-require('dotenv').config();
+require('dotenv').config(); // Load environment variables from .env file
 
-// Require the necessary discord.js classes and axios for HTTP requests
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Events, GatewayIntentBits } = require('discord.js'); // Load environment variables from .env file
 const axios = require('axios');
 const { getTransactionDetails } = require('./commands/checktx');  // Make sure to update this path to where your checktx.js is located
 const { handleCheckTx } = require('./commands/checktx');  // Adjust the path as needed
 
 
-// Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] }); // Create a new client instance
 
 // When the client is ready, run this code (only once)
 client.once(Events.ClientReady, async c => {
@@ -19,21 +17,6 @@ client.once(Events.ClientReady, async c => {
 
     // Registering commands
     try {
-        // Registering the /ping command
-        await axios.post(
-            `https://discord.com/api/v9/applications/${appId}/commands`,
-            {
-                name: 'ping',
-                description: 'Replies with Pong!'
-            },
-            {
-                headers: {
-                    Authorization: `Bot ${process.env.BOT_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
         // Registering the /checktx command
         await axios.post(
             `https://discord.com/api/v9/applications/${appId}/commands`,
@@ -66,10 +49,6 @@ client.once(Events.ClientReady, async c => {
 // This event will run whenever a user types a slash command
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
-
-    if (interaction.commandName === 'ping') {
-        await interaction.reply('Pong!');
-    }
 
     if (interaction.commandName === 'checktx') {
         const ethAddress = interaction.options.getString('address');
