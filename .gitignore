@@ -7,5 +7,9 @@ node_modules/
 # Ignore other files and folders you don't want to commit
 .DS_Store
 
-regSlashCommands.txt
-lastTransactionHash.txt
+# Ignore Hash folder
+TXHash/
+
+api_response.json
+
+# Ignore API_RESPONSe

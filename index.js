@@ -8,7 +8,7 @@ const checkForNewTransaction = require('./commands/address_scan'); // Load Addre
 const trackingIntervals = new Map(); // Global map to store tracking intervals
 
 const addressMap = {};
-setInterval(() => checkForNewTransaction(client, addressMap), 1000);
+// setInterval(() => checkForNewTransaction(client, addressMap), 5000);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] }); // Create a new client instance
 
@@ -67,8 +67,8 @@ client.on('interactionCreate', async interaction => {
 						   `Method: ${tx.method}\n` +
 						   `From: ${tx.from}\n` +
 						   `To: ${tx.to}\n` +
-						   `Value: ${tx.value} ETH\n` +
-						   `Txn Fee: ${tx.txnFee} ETH`
+						   `Value: ${tx.value} \n` +
+						   `Txn Fee: ${tx.txnFee} `
 				};
 			});
 	
