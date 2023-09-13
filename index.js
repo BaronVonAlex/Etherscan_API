@@ -102,12 +102,12 @@ client.on('interactionCreate', async interaction => {
 				return {
 					name: `Transaction #${index + 1}`,
 					value: `Date: ${tx.date}\n` +
-						   `Token: ${tx.tokenName}\n` +
-						   `From: ${tx.from}\n` +
-						   `To: ${tx.to}\n` +
-						   `Value: ${tx.value} Tokens\n` +
-						   `Txn Fee: ${tx.txnFee} ETH`
-				};
+						`Token: [${tx.tokenName}](https://etherscan.io/token/${tx.contractAddress})\n` +
+						`From: ${tx.from}\n` +
+						`To: ${tx.to}\n` +
+						`Value: ${tx.value} Tokens\n` +
+						`Transaction Fee: ${tx.txnFee} ETH\n`
+            	};
 			});
 	
 			embed.addFields(fields);

@@ -91,7 +91,7 @@ async function checkForNewTransaction(client, addressMap) {
                         { name: 'Token Symbol', value: latestTransaction.tokenSymbol}
                     )
                     .setTimestamp()
-                    .setFooter({ text: 'Transaction alert', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+                    .setFooter({ text: 'Transaction alert', iconURL: 'https://cdn.discordapp.com/attachments/673578061895041030/1151517275766136932/imokk1740cs91.png' });
 
                 const channel = await client.channels.fetch(channelId);
                 channel.send({ embeds: [embed] });
