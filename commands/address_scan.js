@@ -6,6 +6,22 @@ const tokenTypes = require('./tokenTypes'); // Assumed you have a tokenTypes.js
 
 const sentTransactionHashes = new Set();
 
+
+// Wei to Ether function for Formatting API Value -> Discord.JS Embed respose
+function weiToEther(wei) {
+    // let base = '1000000000000000000'; 
+    let weiStr = wei.toString();
+  
+    if (weiStr.length < 18) {
+      weiStr = weiStr.padStart(18, '0');
+    }
+  
+    let wholePart = weiStr.slice(0, -18) || '0';
+    let fractionalPart = weiStr.slice(-18).slice(0, 2);
+  
+    return `${parseInt(wholePart).toLocaleString('en-US')}.${fractionalPart}`;
+  }
+
 async function checkForNewTransaction(client, addressMap) {
     try {
         for (const [ethAddress, channelId] of Object.entries(addressMap)) {
@@ -21,7 +37,7 @@ async function checkForNewTransaction(client, addressMap) {
             const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
             const response = await axios.get(`https://api.etherscan.io/api?module=account&action=tokentx&address=${ethAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`);
             
-            // fs.writeFileSync('api_response.json', JSON.stringify(response.data, null, 2));
+            fs.writeFileSync('api_response.json', JSON.stringify(response.data, null, 2));
             // API_RESPONSE COMMAND
 
             if (!response.data.result) {
@@ -42,6 +58,8 @@ async function checkForNewTransaction(client, addressMap) {
                 fs.writeFileSync(fileName, lastTransactionHash, 'utf8');
                 continue;
             }
+
+            const formattedValue = weiToEther(latestTransaction.value);
 
             // this checks if update message was sent with current HASH, if it was then it won't send again and it will wait.
             if (latestTransaction.hash !== lastTransactionHash) {
@@ -67,8 +85,9 @@ async function checkForNewTransaction(client, addressMap) {
                         { name: 'Transaction Hash', value: latestTransaction.hash },
                         { name: 'From', value: latestTransaction.from },
                         { name: 'To', value: latestTransaction.to },
-                        { name: 'Value', value: `${(parseFloat(latestTransaction.value) / 1e18).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` },
-                        { name: 'Token Name', value: `[${tokenTypes[latestTransaction.contractAddress] || latestTransaction.tokenName || "N/A"}](https://etherscan.io/token/${latestTransaction.contractAddress})` }
+                        { name: 'Value', value: formattedValue},
+                        { name: 'Token Name', value: `[${tokenTypes[latestTransaction.contractAddress] || latestTransaction.tokenName || "N/A"}](https://etherscan.io/token/${latestTransaction.contractAddress})` },
+                        { name: 'Token Symbol', value: latestTransaction.tokenSymbol}
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Transaction alert', iconURL: 'https://i.imgur.com/AfFp7pu.png' });

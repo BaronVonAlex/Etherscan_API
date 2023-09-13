@@ -8,7 +8,6 @@ const checkForNewTransaction = require('./commands/address_scan'); // Load Addre
 const trackingIntervals = new Map(); // Global map to store tracking intervals
 
 const addressMap = {};
-// setInterval(() => checkForNewTransaction(client, addressMap), 5000);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] }); // Create a new client instance
 
