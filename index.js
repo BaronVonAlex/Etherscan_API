@@ -8,6 +8,7 @@ const checkForNewTransaction = require('./commands/address_scan'); // Load Addre
 const trackingIntervals = new Map(); // Global map to store tracking intervals
 const fs = require('fs');
 const path = require('path');
+const { ActivityType } = require('discord.js')
 
 
 const addressMap = {};
@@ -18,6 +19,14 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] }); // Create a 
 client.once(Events.ClientReady, async c => {
     try {
         console.log(`Ready! Logged in as ${c.user.tag}`);
+		client.user.setActivity(
+			{
+				name: 'STAYC',
+				type: ActivityType.Streaming,
+				url: 'https://www.twitch.tv/baronvonalexs',
+				status: 'idle'
+			}
+		);
     } catch (error) {
         console.error('Error registering commands:', error);
     }
@@ -27,10 +36,24 @@ client.once(Events.ClientReady, async c => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
+	if (interaction.commandName === 'activetracking') {
+		const trackedAddresses = Object.keys(addressMap);
+		if (trackedAddresses.length === 0) {
+			await interaction.reply('No addresses are currently being tracked.');
+		} else {
+			await interaction.reply(`Currently tracking the following addresses: ${trackedAddresses.join(', ')}`);
+		}
+	}
+	
 	if (interaction.commandName === 'trackaddress') {
 		const ethAddress = interaction.options.getString('address');
 		const channelId = interaction.options.getString('channelid');
 		
+		if (Object.keys(addressMap).length >= 1) {
+			await interaction.reply('You can only track one address at a time.');
+			return;
+		}
+
 		// Store this information
 		addressMap[ethAddress] = channelId;
 
@@ -65,8 +88,10 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.commandName === 'checktx') {
 		const ethAddress = interaction.options.getString('address');
+		const userSelectedOffset = interaction.options.getInteger('amount'); // Replace 'num_transactions' with the actual command/option name
+	
 		try {
-			const transactions = await getTransactionDetails(ethAddress);
+			const transactions = await getTransactionDetails(ethAddress, userSelectedOffset);
 			
 			const embed = new EmbedBuilder()
 				.setColor(0x0099FF)
@@ -77,11 +102,11 @@ client.on('interactionCreate', async interaction => {
 				return {
 					name: `Transaction #${index + 1}`,
 					value: `Date: ${tx.date}\n` +
-						   `Method: ${tx.method}\n` +
+						   `Token: ${tx.tokenName}\n` +
 						   `From: ${tx.from}\n` +
 						   `To: ${tx.to}\n` +
-						   `Value: ${tx.value} \n` +
-						   `Txn Fee: ${tx.txnFee} `
+						   `Value: ${tx.value} Tokens\n` +
+						   `Txn Fee: ${tx.txnFee} ETH`
 				};
 			});
 	
@@ -93,6 +118,7 @@ client.on('interactionCreate', async interaction => {
 			await interaction.reply('An error occurred while fetching transactions.');
 		}
 	}
+	
 });
 
 client.login(process.env.BOT_TOKEN); // Login Discord with Token.
