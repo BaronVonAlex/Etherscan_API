@@ -37,8 +37,9 @@ async function checkForNewTransaction(client, addressMap) {
             const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
             const response = await axios.get(`https://api.etherscan.io/api?module=account&action=tokentx&address=${ethAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${etherscanApiKey}`);
             
-            fs.writeFileSync('api_response.json', JSON.stringify(response.data, null, 2));
-            // API_RESPONSE COMMAND
+            //fs.writeFileSync('api_response.json', JSON.stringify(response.data, null, 2));
+            // API_RESPONSE COMMAND This not needed for anything
+            // we can track Actual response in main folder api_response.json
 
             if (!response.data.result) {
                 console.warn('No transactions found in the API response.');

@@ -6,6 +6,9 @@ const { getTransactionDetails } = require('./commands/checktx');  // Make sure t
 const { EmbedBuilder } = require('discord.js');
 const checkForNewTransaction = require('./commands/address_scan'); // Load Address Scan functions
 const trackingIntervals = new Map(); // Global map to store tracking intervals
+const fs = require('fs');
+const path = require('path');
+
 
 const addressMap = {};
 
@@ -33,21 +36,32 @@ client.on('interactionCreate', async interaction => {
 
 		const intervalId = setInterval(() => checkForNewTransaction(client, addressMap), 1000);
         trackingIntervals.set(ethAddress, intervalId);
-		
 		await interaction.reply(`Now tracking address ${ethAddress} and will post updates in channel ${channelId}`);
 	}
 
 	if (interaction.commandName === 'stoptracking') {
-		const address = interaction.options.getString('address');
-	
-		// Remove the address from the addressMap to stop tracking
-		if (addressMap.hasOwnProperty(address)) {
-			delete addressMap[address];
-			await interaction.reply(`Stopped tracking address ${address}`);
-		} else {
-			await interaction.reply(`No tracking found for address ${address}`);
-		}
-	}
+        const address = interaction.options.getString('address');
+
+        // Remove the address from the addressMap to stop tracking
+        if (addressMap.hasOwnProperty(address)) {
+            // Clear the interval if it exists
+            if (trackingIntervals.has(address)) {
+                clearInterval(trackingIntervals.get(address));
+                trackingIntervals.delete(address);
+            }
+
+            // Delete last transaction hash file
+            const fileName = path.join('TXHash', `lastTransactionHash_${address}.txt`);
+            if (fs.existsSync(fileName)) {
+                fs.unlinkSync(fileName);
+            }
+
+            delete addressMap[address];
+            await interaction.reply(`Stopped tracking address ${address} and deleted the associated file.`);
+        } else {
+            await interaction.reply(`No tracking found for address ${address}`);
+        }
+    }
 
     if (interaction.commandName === 'checktx') {
 		const ethAddress = interaction.options.getString('address');
