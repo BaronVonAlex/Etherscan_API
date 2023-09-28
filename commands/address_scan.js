@@ -20,7 +20,7 @@ function weiToEther(wei) {
     let fractionalPart = weiStr.slice(-18).slice(0, 2);
   
     return `${parseInt(wholePart).toLocaleString('en-US')}.${fractionalPart}`;
-  }
+}
 
 async function checkForNewTransaction(client, addressMap) {
     try {
@@ -84,7 +84,7 @@ async function checkForNewTransaction(client, addressMap) {
                     .setDescription(`Ethereum Address: ${ethAddress}`)
                     .addFields(
                         { name: 'Transaction Hash', value: latestTransaction.hash },
-                        { name: 'From', value: latestTransaction.from },
+                        // { name: 'From', value: latestTransaction.from },
                         { name: 'To', value: latestTransaction.to },
                         { name: 'Value', value: formattedValue},
                         { name: 'Token Name', value: `[${tokenTypes[latestTransaction.contractAddress] || latestTransaction.tokenName || "N/A"}](https://etherscan.io/token/${latestTransaction.contractAddress})` },
