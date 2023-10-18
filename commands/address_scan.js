@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 const { EmbedBuilder } = require('discord.js'); // Changed to MessageEmbed
 const tokenTypes = require('./tokenTypes'); // Assumed you have a tokenTypes.js
 const db = require('./database');

@@ -1,18 +1,12 @@
 require('dotenv').config(); // Load environment variables from .env file
-
 const { Client, Events, GatewayIntentBits } = require('discord.js'); // Load environment variables from .env file
-const axios = require('axios');
 const { getTransactionDetails } = require('./commands/checktx');  // Make sure to update this path to where your checktx.js is located
 const { EmbedBuilder } = require('discord.js');
 const checkForNewTransaction = require('./commands/address_scan'); // Load Address Scan functions
 const trackingIntervals = new Map(); // Global map to store tracking intervals
-const fs = require('fs');
-const path = require('path');
 const { ActivityType } = require('discord.js')
 const db = require('./commands/database');
 const { getLastTransactionHashFromDB, updateLastTransactionHashInDB } = require('./commands/dbUtils');
-
-
 
 const addressMap = {};
 
@@ -140,8 +134,6 @@ client.on('interactionCreate', async interaction => {
 			}
 		});
 	}
-	
-	
 
     if (interaction.commandName === 'checktx') {
 		const ethAddress = interaction.options.getString('address');
@@ -175,7 +167,6 @@ client.on('interactionCreate', async interaction => {
 			await interaction.reply('An error occurred while fetching transactions.');
 		}
 	}
-	
 });
 
 client.login(process.env.BOT_TOKEN); // Login Discord with Token.
