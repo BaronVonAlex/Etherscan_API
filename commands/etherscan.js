@@ -1,5 +1,5 @@
 const axios = require('axios');
-const etherscanApiKey = process.env.ETHERSCAN_API_KEY;; // Read API key from .env
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY; // Read API key from .env
 
 async function getTransactionCount(ethAddress) {
     try {
