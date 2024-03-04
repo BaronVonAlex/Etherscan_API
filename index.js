@@ -18,7 +18,7 @@ client.once(Events.ClientReady, async c => {
         console.log(`Ready! Logged in as ${c.user.tag}`);
 		client.user.setActivity(
 			{
-				name: 'STAYC',
+				name: '213',
 				type: ActivityType.Streaming,
 				url: 'https://www.twitch.tv/baronvonalexs',
 				status: 'idle'
